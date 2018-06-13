@@ -30,3 +30,21 @@ const int motorPin4 = 0;
 const int STEP_DELAY = 3;
 
 ```
+
+
+Home Assistant config:
+
+```yaml
+cover:
+  - platform: mqtt
+    name: "Blinds"
+    command_topic: "room/jalousie/cmnd"
+    state_topic: "room/jalousie/stat"
+    set_position_topic: "room/jalousie/pos"
+    availability_topic: "room/jalousie/available"
+    qos: 1
+    retain: false
+    payload_open: "OPEN"
+    payload_close: "CLOSE"
+    payload_stop: "STOP"
+```
