@@ -1,0 +1,13 @@
+[Unit]
+Description=PIR to MQTT service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/home/pi/MQTT-Clients/mqtt-pir/mqtt-pir.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
