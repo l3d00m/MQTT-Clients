@@ -16,7 +16,7 @@ SECONDS_TO_SLEEP = 4
 
 
 # The callback for when the client receives a CONNACK response from the server.
-def on_connect(client, userdata, flags, rc):
+def on_connect(client, rc):
     if rc > 0:
         raise ConnectionError('Wrong result code from mqtt server {}'.format(rc))
     print("Connected with result code {}".format(rc))
@@ -54,15 +54,15 @@ while True:
                     skipped_count += 1
                     continue
 
-        if last_humidity != humidity:
+        if abs(last_humidity - humidity) >= 0.2:
             client.publish(HUMIDITY_TOPIC, round(humidity, 1))
             print('Published new humidity')
+            last_humidity = humidity
         if last_temperature != temperature:
             client.publish(TEMPERATURE_TOPIC, round(temperature, 1))
             print('Published new temperature')
+            last_temperature = temperature
 
         skipped_count = 0
-        last_humidity = humidity
-        last_temperature = temperature
     else:
         print('Failed to get reading. Skipping ...')
