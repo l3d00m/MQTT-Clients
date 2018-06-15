@@ -3,14 +3,18 @@
 sensor:
   - platform: mqtt
     name: "Temperature"
-    state_topic: "room/temperature"
-    expire_after: 300
+    state_topic: "room/climate/temperature"
     unit_of_measurement: '°C'
+    availability_topic: "room/climate/status"
+    payload_available: "online"
+    payload_not_available: "offline"
     device_class: temperature
   - platform: mqtt
     name: "Humidity"
-    state_topic: "room/humidity"
+    state_topic: "room/climate/humidity"
     unit_of_measurement: '%'
-    expire_after: 300
+    availability_topic: "room/climate/status"
+    payload_available: "online"
+    payload_not_available: "offline"
     device_class: humidity
 ```
