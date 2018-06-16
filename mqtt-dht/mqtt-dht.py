@@ -4,15 +4,7 @@
 import paho.mqtt.client as mqtt
 import time
 import Adafruit_DHT
-
-TEMPERATURE_TOPIC = "room/climate/temperature"
-HUMIDITY_TOPIC = "room/climate/humidity"
-AVAILABILITY_TOPIC = "room/climate/status"
-MQTT_BROKER_HOSTNAME = "192.168.0.xxx"
-MQTT_BROKER_PORT = 1883
-DHT_PIN = 4
-DHT_VERSION = Adafruit_DHT.DHT22
-SECONDS_TO_SLEEP = 4
+import config
 
 
 # The callback for when the client receives a CONNACK response from the server.
@@ -20,22 +12,22 @@ def on_connect(client, rc):
     if rc > 0:
         raise ConnectionError('Wrong result code from mqtt server {}'.format(rc))
     print("Connected with result code {}".format(rc))
-    client.publish(AVAILABILITY_TOPIC, "online", 1, True)
+    client.publish(config.AVAILABILITY_TOPIC, "online", 1, True)
 
 
 client = mqtt.Client()
 client.on_connect = on_connect
-client.will_set(AVAILABILITY_TOPIC, "offline", 1, True)
-client.connect(MQTT_BROKER_HOSTNAME,
-               MQTT_BROKER_PORT,
+client.will_set(config.AVAILABILITY_TOPIC, "offline", 1, True)
+client.connect(config.MQTT_BROKER_HOSTNAME,
+               config.MQTT_BROKER_PORT,
                10)
 client.loop_start()
 last_humidity = False
 last_temperature = False
 skipped_count = 0
 while True:
-    time.sleep(SECONDS_TO_SLEEP)
-    humidity, temperature = Adafruit_DHT.read_retry(DHT_VERSION, DHT_PIN)
+    time.sleep(config.SECONDS_TO_SLEEP)
+    humidity, temperature = Adafruit_DHT.read_retry(22, config.DHT_PIN)
     if humidity is not None and temperature is not None:
         # Basic validity check
         if (humidity < 1) or (humidity > 99) or (temperature < 0) or (temperature > 50):
@@ -44,7 +36,7 @@ while True:
         # More advanced validity check
         if last_temperature is not False and last_humidity is not False:
             # If this is not the first run, check that the difference between two measurements is not too high
-            if abs(last_humidity - humidity) > 5 or abs(last_temperature - temperature > 2):
+            if abs(last_humidity - humidity) >= 2.5 or abs(last_temperature - temperature >= 1):
                 if skipped_count > 7:
                     # If somehow the script hasn't run for some time or started with a wrong value, this is a fail safe
                     # It should very rarely land here
@@ -55,11 +47,11 @@ while True:
                     continue
 
         if abs(last_humidity - humidity) >= 0.2:
-            client.publish(HUMIDITY_TOPIC, round(humidity, 1))
+            client.publish(config.HUMIDITY_TOPIC, round(humidity, 1), retain=True)
             print('Published new humidity')
             last_humidity = humidity
         if last_temperature != temperature:
-            client.publish(TEMPERATURE_TOPIC, round(temperature, 1))
+            client.publish(config.TEMPERATURE_TOPIC, round(temperature, 1), retain=True)
             print('Published new temperature')
             last_temperature = temperature
 
