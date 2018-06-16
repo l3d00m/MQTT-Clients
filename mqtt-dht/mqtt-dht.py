@@ -8,7 +8,7 @@ import config
 
 
 # The callback for when the client receives a CONNACK response from the server.
-def on_connect(client, rc):
+def on_connect(client, userdata, flags, rc):
     if rc > 0:
         raise ConnectionError('Wrong result code from mqtt server {}'.format(rc))
     print("Connected with result code {}".format(rc))
