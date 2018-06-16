@@ -8,6 +8,7 @@ import config
 
 
 # The callback for when the client receives a CONNACK response from the server.
+# noinspection PyUnusedLocal
 def on_connect(client, userdata, flags, rc):
     if rc > 0:
         raise ConnectionError('Wrong result code from mqtt server {}'.format(rc))

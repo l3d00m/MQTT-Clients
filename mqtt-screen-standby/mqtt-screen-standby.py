@@ -2,14 +2,15 @@
 import paho.mqtt.client as mqtt
 import os
 import subprocess
+import config
 
 
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, rc, *extra_params):
     print('Connected with result code ' + str(rc))
     # Subscribing to receive RPC requests
-    client.subscribe('room/monitor/cmnd')
-    client.publish('room/monitor/stat', get_state(), 1)
+    client.subscribe(config.COMMAND_TOPIC)
+    client.publish(config.STATE_TOPIC, get_state(), 1)
 
 
 # The callback for when a PUBLISH message is received from the server.
@@ -22,7 +23,7 @@ def on_message(client, userdata, msg):
         os.system('vcgencmd display_power 1')
     if data == 'OFF':
         os.system('vcgencmd display_power 0')
-    client.publish('room/monitor/stat', get_state(), 1)
+    client.publish(config.STATE_TOPIC, get_state(), 1)
 
 
 def get_state():
@@ -36,8 +37,8 @@ def get_state():
 client = mqtt.Client()
 # Register connect callback
 client.on_connect = on_connect
-# Registed publish message callback
+# Register publish message callback
 client.on_message = on_message
-client.connect("192.168.0.40", 1883, 20)
-
+client.connect(config.MQTT_BROKER_HOST, config.MQTT_BROKER_PORT, 20)
+# Loop forever because this script just receives commands
 client.loop_forever()
