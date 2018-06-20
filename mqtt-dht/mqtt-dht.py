@@ -29,33 +29,34 @@ skipped_count = 0
 while True:
     time.sleep(config.SECONDS_TO_SLEEP)
     humidity, temperature = Adafruit_DHT.read_retry(22, config.DHT_PIN)
-    if humidity is not None and temperature is not None:
-        # Basic validity check
-        if (humidity < 1) or (humidity > 99) or (temperature < 0) or (temperature > 50):
-            print("Value out of bounds, skipping...")
-            continue
-        # More advanced validity check
-        if last_temperature is not False and last_humidity is not False:
-            # If this is not the first run, check that the difference between two measurements is not too high
-            if abs(last_humidity - humidity) >= 2.5 or abs(last_temperature - temperature >= 1):
-                if skipped_count > 7:
-                    # If somehow the script hasn't run for some time or started with a wrong value, this is a fail safe
-                    # It should very rarely land here
-                    print("We already skipped the last 7, now assuming that this is the right value")
-                else:
-                    print("Difference to last value is too high, skipping...")
-                    skipped_count += 1
-                    continue
-
-        if abs(last_humidity - humidity) >= 0.2:
-            client.publish(config.HUMIDITY_TOPIC, round(humidity, 1), retain=True)
-            print('Published new humidity')
-            last_humidity = humidity
-        if last_temperature != temperature:
-            client.publish(config.TEMPERATURE_TOPIC, round(temperature, 1), retain=True)
-            print('Published new temperature')
-            last_temperature = temperature
-
-        skipped_count = 0
-    else:
+    # Verify that the reading worked
+    if humidity is None or temperature is None:
         print('Failed to get reading. Skipping ...')
+        continue
+    # Basic validity check
+    if (humidity < 1) or (humidity > 99) or (temperature < 0) or (temperature > 50):
+        print("Value is out of bounds, skipping this reading...")
+        continue
+    # More advanced validity check
+    if last_temperature is not False and last_humidity is not False:
+        # If this is not the first run, check that the difference between two measurements is not too high
+        if abs(last_humidity - humidity) >= 2.5 or abs(last_temperature - temperature >= 1):
+            if skipped_count < 15:
+                print("Difference to last value is too high, skipping for the " + str(skipped_count) + ". time...")
+                skipped_count += 1
+                continue
+            else:
+                # If somehow the script hasn't run for some time or started with a wrong value, this is a fail safe
+                # It should very rarely land here
+                print("We already skipped a lot of values, now assuming that this is the right value")
+
+    if abs(last_humidity - humidity) >= 0.2:
+        client.publish(config.HUMIDITY_TOPIC, round(humidity, 1), retain=True)
+        print('Published new humidity')
+        last_humidity = humidity
+    if last_temperature != temperature:
+        client.publish(config.TEMPERATURE_TOPIC, round(temperature, 1), retain=True)
+        print('Published new temperature')
+        last_temperature = temperature
+
+    skipped_count = 0
