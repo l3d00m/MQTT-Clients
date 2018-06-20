@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3 -u
 import paho.mqtt.client as mqtt
 import os
 import subprocess

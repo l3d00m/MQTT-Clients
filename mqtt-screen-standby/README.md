@@ -18,5 +18,4 @@ switch:
     command_topic: "room/monitor/cmnd"
     state_topic: "room/monitor/stat"
     icon: mdi:monitor
-
 ```

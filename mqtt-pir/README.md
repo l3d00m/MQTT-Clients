@@ -20,5 +20,4 @@ binary_sensor:
     state_topic: "room/movement"
     payload_on : 1
     payload_off: 0
-
 ```

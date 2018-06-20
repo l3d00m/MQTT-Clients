@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3 -u
 
 # Modified from https://github.com/corbanmailloux/esp-mqtt-dht
 import paho.mqtt.client as mqtt
