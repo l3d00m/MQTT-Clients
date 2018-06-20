@@ -4,6 +4,7 @@ Wants=network-online.target
 After=network-online.target
 
 [Service]
+Environment=PYTHONUNBUFFERED=1
 Type=simple
 ExecStart=/home/pi/MQTT-Clients/mqtt-screen-standby/mqtt-screen-standby.py
 Restart=always
