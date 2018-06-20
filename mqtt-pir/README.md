@@ -9,11 +9,9 @@ PIR_GPIO_PIN = 11
 MOVEMENT_TIMEOUT_SECONDS = 120.0
 ```
 
-2\) Run `chmod +x mqtt-pir.py` to make the file executable
+2\) Copy the service file from this directory to `/etc/systemd/system/mqtt-pir.service`, reload the service configuration with `sudo systemctl deamon-reload`, enable (= autostart) the service with `sudo systemctl enable mqtt-pir` and finally run it with `sudo systemctl start mqtt-pir`
 
-3\) Copy the service file from this directory to `/etc/systemd/system/mqtt-pir.service`, reload the service configuration with `sudo systemctl deamon-reload`, enable (= autostart) the service with `sudo systemctl enable mqtt-pir` and finally run it with `sudo systemctl start mqtt-pir`
-
-4\) Add this to your homeassistant configuration:
+3\) Add this to your homeassistant configuration:
 
 ```yaml
 binary_sensor:

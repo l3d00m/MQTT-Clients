@@ -7,11 +7,9 @@ MQTT_BROKER_PORT = 1883
 MQTT_BROKER_HOST = "192.168.xxx.xxx"
 ```
 
-2\) Run `chmod +x mqtt-screen-standby.py` to make the file executable
+2\) Copy the service file from this directory to `/etc/systemd/system/mqtt-screen-standby.service`, reload the service configuration with `sudo systemctl deamon-reload`, enable (= autostart) the service with `sudo systemctl enable mqtt-screen-standby` and finally run it with `sudo systemctl start mqtt-screen-standby`
 
-3\) Copy the service file from this directory to `/etc/systemd/system/mqtt-screen-standby.service`, reload the service configuration with `sudo systemctl deamon-reload`, enable (= autostart) the service with `sudo systemctl enable mqtt-screen-standby` and finally run it with `sudo systemctl start mqtt-screen-standby`
-
-4\) Add this to your homeassistant configuration:
+3\) Add this to your homeassistant configuration:
 
 ```yaml
 switch:

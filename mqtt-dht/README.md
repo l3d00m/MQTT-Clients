@@ -10,11 +10,9 @@ DHT_PIN = 4
 SECONDS_TO_SLEEP = 4
 ```
 
-2\) Run `chmod +x mqtt-dht.py` to make the file executable
+2\) Copy the service file from this directory to `/etc/systemd/system/mqtt-dht.service`, reload the service configuration with `sudo systemctl deamon-reload`, enable (= autostart) the service with `sudo systemctl enable mqtt-dht` and finally run it with `sudo systemctl start mqtt-dht`
 
-3\) Copy the service file from this directory to `/etc/systemd/system/mqtt-dht.service`, reload the service configuration with `sudo systemctl deamon-reload`, enable (= autostart) the service with `sudo systemctl enable mqtt-dht` and finally run it with `sudo systemctl start mqtt-dht`
-
-4\) Add this to your homeassistant configuration:
+3\) Add this to your homeassistant configuration:
  
 ```yaml
 sensor:
