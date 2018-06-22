@@ -18,6 +18,6 @@ TBD
 
 ## For the ESP8266
 
-## Blinds module
+### Blinds module
 
 TBD
