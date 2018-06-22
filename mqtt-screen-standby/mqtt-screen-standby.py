@@ -11,6 +11,7 @@ def on_connect(client, userdata, rc, *extra_params):
     # Subscribing to receive RPC requests
     client.subscribe(config.COMMAND_TOPIC)
     client.publish(config.STATE_TOPIC, get_state(), 1)
+    client.publish(config.AVAILABILITY_TOPIC, "online", 1, True)
 
 
 # The callback for when a PUBLISH message is received from the server.
@@ -35,10 +36,9 @@ def get_state():
 
 
 client = mqtt.Client()
-# Register connect callback
 client.on_connect = on_connect
-# Register publish message callback
 client.on_message = on_message
+client.will_set(config.AVAILABILITY_TOPIC, "offline", 1, True)
 client.connect(config.MQTT_BROKER_HOST, config.MQTT_BROKER_PORT, 20)
 # Loop forever because this script just receives commands
 client.loop_forever()

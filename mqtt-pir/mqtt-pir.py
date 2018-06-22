@@ -34,6 +34,7 @@ class ResetTimer:
 # noinspection PyUnusedLocal
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code ", str(rc))
+    client.publish(config.AVAILABILITY_TOPIC, "online", 1, True)
 
 
 def timeout():
@@ -48,6 +49,7 @@ timer = ResetTimer(config.MOVEMENT_TIMEOUT_SECONDS, timeout)
 
 client = mqtt.Client()
 client.on_connect = on_connect
+client.will_set(config.AVAILABILITY_TOPIC, "offline", 1, True)
 client.connect(config.MQTT_BROKER_HOSTNAME, config.MQTT_BROKER_PORT, 60)
 
 client.loop_start()

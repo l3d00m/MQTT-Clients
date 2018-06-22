@@ -3,7 +3,7 @@
 ```python
 TEMPERATURE_TOPIC = "room/climate/temperature"
 HUMIDITY_TOPIC = "room/climate/humidity"
-AVAILABILITY_TOPIC = "room/climate/status"
+AVAILABILITY_TOPIC = "room/climate/available"
 MQTT_BROKER_HOSTNAME = "192.168.0.xxx"
 MQTT_BROKER_PORT = 1883
 DHT_PIN = 4
@@ -28,7 +28,7 @@ sensor:
     name: "Humidity"
     state_topic: "room/climate/humidity"
     unit_of_measurement: '%'
-    availability_topic: "room/climate/status"
+    availability_topic: "room/climate/available"
     payload_available: "online"
     payload_not_available: "offline"
     device_class: humidity

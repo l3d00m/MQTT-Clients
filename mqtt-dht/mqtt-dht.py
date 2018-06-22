@@ -40,9 +40,9 @@ while True:
     # More advanced validity check
     if last_temperature is not False and last_humidity is not False:
         # If this is not the first run, check that the difference between two measurements is not too high
-        if abs(last_humidity - humidity) >= 2.5 or abs(last_temperature - temperature >= 1):
-            if skipped_count < 15:
-                print("Difference to last value is too high, skipping for the " + str(skipped_count) + ". time...")
+        if abs(last_humidity - humidity) >= 4 or abs(last_temperature - temperature >= 1):
+            if skipped_count < 20:
+                print("Difference to last value is too high, skipping for the " + str(skipped_count + 1) + ". time...")
                 skipped_count += 1
                 continue
             else:
