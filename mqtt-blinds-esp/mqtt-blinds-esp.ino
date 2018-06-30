@@ -24,8 +24,6 @@ void setup() {
   setup_motor();
   turn_off_motor();
   loadStepsFromEeprom();
-  setup_wifi();
-  setup_mqtt();
 }
 
 void callback(char* tpc, byte* payload_bytes, unsigned int length) {
@@ -72,9 +70,13 @@ void finish_moving() {
 }
 
 void loop() {
+  if (WiFi.status() != WL_CONNECTED) {
+    turn_off_motor();
+    setup_wifi();
+  }
   if (!client.connected()) {
     turn_off_motor();
-    connect();
+    setup_mqtt();
     publishCurrentPercentage();
   }
   client.loop();
@@ -118,7 +120,7 @@ void loop() {
 }
 
 byte stepsToPercentage(int steps) {
-  if (steps < -1 || steps > STEPS){
+  if (steps < -1 || steps > STEPS) {
     Serial.print("[ERROR] We have a problem with steps here, was ");
     Serial.println(steps);
     return 0;
@@ -126,8 +128,8 @@ byte stepsToPercentage(int steps) {
   return (100 - round(((double)steps / STEPS) * 100));
 }
 
-int percentageToSteps(int percentage){
-  if (percentage < 0 || percentage > 100){
+int percentageToSteps(int percentage) {
+  if (percentage < 0 || percentage > 100) {
     Serial.println("[ERROR] We have a problem with percentage here, was ");
     Serial.println(percentage);
     return 0;

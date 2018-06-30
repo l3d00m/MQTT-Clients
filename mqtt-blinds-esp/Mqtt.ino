@@ -1,9 +1,6 @@
 void setup_mqtt() {
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
-}
-
-void connect() {
   // Loop until we're connected
   while (!client.connected()) {
     Serial.println("Attempting MQTT connection...");
