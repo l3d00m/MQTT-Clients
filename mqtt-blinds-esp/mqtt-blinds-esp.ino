@@ -1,21 +1,26 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <EEPROM.h>
+#include <Stepper.h>
 
 #include "Constants.h"
 
-// Will be dynamic one day (for calibration)
-const int STEPS = 21500;
+// Max Steps (i.e. how far to move); gets overriden by mqtt config command
+int STEPS = 23000;
 
 /* Global values used in the program */
 int custom_speed = -1;
-int MOVE_TO = -1;
+int MOVE_TO = -2;
 int current_steps = 0;
 int prev_steps = -1;
 unsigned long previousMillis = 0;
+// Delay between each motor step; gets overriden by mqtt config command
+int default_step_delay = 3;
 
 WiFiClient espClient;
 PubSubClient client(espClient);
+const int stepsPerRevolution = 64;
+Stepper myStepper(stepsPerRevolution, motorPin1, motorPin2, motorPin3, motorPin4);
 
 void setup() {
   Serial.begin(115200);
@@ -23,7 +28,10 @@ void setup() {
   delay(200);
   setup_motor();
   turn_off_motor();
-  loadStepsFromEeprom();
+  loadCurrentStepsFromEeprom();
+  loadDefaultStepsFromEeprom();
+  loadSpeedFromEeprom();
+  myStepper.setSpeed(60);
 }
 
 void callback(char* tpc, byte* payload_bytes, unsigned int length) {
@@ -42,9 +50,14 @@ void callback(char* tpc, byte* payload_bytes, unsigned int length) {
     Serial.print("Moving to percentage ");
     int percentage = cmnd.toInt();
     Serial.print(percentage);
-    MOVE_TO = percentageToSteps(percentage);
-    Serial.print(" which equals steps: ");
-    Serial.println(MOVE_TO);
+    if (percentage >= 0 || percentage <= 100) {
+      MOVE_TO = percentageToSteps(percentage);
+      Serial.print(" which equals steps: ");
+      Serial.println(MOVE_TO);
+    } else {
+      Serial.println(" ... welp we aren't moving, this is not a valid percentage");
+    }
+
   } else if (topic.equals(cmnd_topic)) {
     if (cmnd.startsWith("OPEN")) {
       MOVE_TO = 0;
@@ -55,10 +68,24 @@ void callback(char* tpc, byte* payload_bytes, unsigned int length) {
     } else if (cmnd.startsWith("STOP")) {
       finish_moving();
     }
-  } else if (topic.equals(speed_topic)) {
+  } else if (topic.equals(next_speed_topic)) {
     Serial.print("Received custom speed for next cmnd: ");
     Serial.println(cmnd.toInt());
     custom_speed = cmnd.toInt();
+  } else if (topic.equals(speed_config_topic)) {
+    Serial.print("Received speed config: ");
+    Serial.println(cmnd.toInt());
+    default_step_delay = cmnd.toInt();
+    writeSpeedToEeprom();
+  } else if (topic.equals(steps_config_topic)) {
+    Serial.print("Received steps config: ");
+    Serial.println(cmnd.toInt());
+    STEPS = cmnd.toInt();
+    writeDefaultStepsToEeprom();
+    // move to the new limit to make it easier to configure
+    MOVE_TO = STEPS;
+  } else {
+    Serial.println("Topic unknown, nothing done. This should not happen");
   }
 }
 
@@ -66,7 +93,7 @@ void finish_moving() {
   MOVE_TO = -1;
   custom_speed = -1;
   publishCurrentPercentage();
-  writeStepsToEeprom();
+  writeCurrentStepsToEeprom();
 }
 
 void loop() {
@@ -80,10 +107,9 @@ void loop() {
     publishCurrentPercentage();
   }
   client.loop();
-
+  unsigned long currentMillis = millis();
   if (MOVE_TO >= 0) {
-    unsigned long currentMillis = millis();
-    int step_dl = STEP_DELAY;
+    int step_dl = default_step_delay;
     if (custom_speed > 0) {
       step_dl = custom_speed;
     }
@@ -114,16 +140,27 @@ void loop() {
         current_steps --;
       }
     }
+  } else if (MOVE_TO == -1) {
+    // MOVE_TO = -1 means the motor has just stopped operation and should still hold to avoid blinds falling down
+    if (currentMillis - previousMillis >= HOLD_DELAY_MS) { // Custom non blocking delay
+      MOVE_TO = -2;
+      Serial.println("Hold finished");
+    }
   } else {
+    // finally turn off motor
     turn_off_motor();
   }
 }
 
 byte stepsToPercentage(int steps) {
-  if (steps < -1 || steps > STEPS) {
+  if (steps < -1) {
     Serial.print("[ERROR] We have a problem with steps here, was ");
     Serial.println(steps);
     return 0;
+  }
+  if (steps > STEPS) {
+    // This can happen if the new max get changed, don't error
+    return 100;
   }
   return (100 - round(((double)steps / STEPS) * 100));
 }

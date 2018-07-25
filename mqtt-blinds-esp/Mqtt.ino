@@ -10,7 +10,9 @@ void setup_mqtt() {
       client.publish(availability_topic, "online", true);
       client.subscribe(cmnd_topic);
       client.subscribe(pos_topic);
-      client.subscribe(speed_topic);
+      client.subscribe(next_speed_topic);
+      client.subscribe(speed_config_topic);
+      client.subscribe(steps_config_topic);
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
