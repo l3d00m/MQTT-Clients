@@ -8,7 +8,7 @@
 #include "Constants.h"
 
 // Max Steps (i.e. how far to move); gets overriden by mqtt config command
-int STEPS = 23000;
+int STEPS = 46000;
 
 /* Global values used in the program */
 int custom_rpm = -1;
@@ -29,10 +29,10 @@ void setup() {
   delay(200);
   setup_motor();
   turn_off_motor();
+  initOTA();
   loadCurrentStepsFromEeprom();
   loadDefaultStepsFromEeprom();
   loadSpeedFromEeprom();
-  myStepper.setSpeed(60);
 }
 
 void callback(char* tpc, byte* payload_bytes, unsigned int length) {
@@ -128,9 +128,10 @@ void loop() {
         publishCurrentPercentage();
       }
 
+      step(current_steps);
+
       previousMicros = currentMicros;
       prev_steps = current_steps;
-
 
       if (current_steps <= MOVE_TO) {
         // Is currently moving down
