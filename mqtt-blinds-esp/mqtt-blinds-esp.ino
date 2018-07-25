@@ -1,7 +1,9 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <EEPROM.h>
-#include <Stepper.h>
+#include <ESP8266mDNS.h>
+#include <ArduinoOTA.h>
+#include <WiFiUdp.h>
 
 #include "Constants.h"
 
@@ -9,18 +11,17 @@
 int STEPS = 23000;
 
 /* Global values used in the program */
-int custom_speed = -1;
+int custom_rpm = -1;
 int MOVE_TO = -2;
 int current_steps = 0;
 int prev_steps = -1;
-unsigned long previousMillis = 0;
+unsigned long previousMicros = 0;
 // Delay between each motor step; gets overriden by mqtt config command
-int default_step_delay = 3;
+int rpm;
 
 WiFiClient espClient;
 PubSubClient client(espClient);
-const int stepsPerRevolution = 64;
-Stepper myStepper(stepsPerRevolution, motorPin1, motorPin2, motorPin3, motorPin4);
+const int stepsPerRotation = 4076; // 64 steps per revolution * 63,8... gear reduction ratio: https://42bots.com/tutorials/28byj-48-stepper-motor-with-uln2003-driver-and-arduino-uno/
 
 void setup() {
   Serial.begin(115200);
@@ -71,11 +72,11 @@ void callback(char* tpc, byte* payload_bytes, unsigned int length) {
   } else if (topic.equals(next_speed_topic)) {
     Serial.print("Received custom speed for next cmnd: ");
     Serial.println(cmnd.toInt());
-    custom_speed = cmnd.toInt();
+    custom_rpm = cmnd.toInt();
   } else if (topic.equals(speed_config_topic)) {
     Serial.print("Received speed config: ");
     Serial.println(cmnd.toInt());
-    default_step_delay = cmnd.toInt();
+    rpm = cmnd.toInt();
     writeSpeedToEeprom();
   } else if (topic.equals(steps_config_topic)) {
     Serial.print("Received steps config: ");
@@ -91,7 +92,7 @@ void callback(char* tpc, byte* payload_bytes, unsigned int length) {
 
 void finish_moving() {
   MOVE_TO = -1;
-  custom_speed = -1;
+  custom_rpm = -1;
   publishCurrentPercentage();
   writeCurrentStepsToEeprom();
 }
@@ -101,18 +102,18 @@ void loop() {
     turn_off_motor();
     setup_wifi();
   }
+  ArduinoOTA.handle();
   if (!client.connected()) {
     turn_off_motor();
     setup_mqtt();
     publishCurrentPercentage();
   }
   client.loop();
-  unsigned long currentMillis = millis();
+  unsigned long currentMicros = micros();
   if (MOVE_TO >= 0) {
-    int step_dl = default_step_delay;
-    if (custom_speed > 0) {
-      step_dl = custom_speed;
-    }
+    // convert rotations per minute to step delay in microseconds
+    // and use custom_rpm if set, else usual rpm
+    int step_delay = 60L * 1000L * 1000L / stepsPerRotation / ((custom_rpm > 0) ? custom_rpm : rpm);
     if (current_steps == MOVE_TO) {
       if (prev_steps == -1) {
         Serial.println("First run finished");
@@ -122,13 +123,12 @@ void loop() {
         Serial.println("Finished moving up");
       }
       finish_moving();
-    } else if (currentMillis - previousMillis >= step_dl) { // Custom non blocking delay
+    } else if (currentMicros - previousMicros >= step_delay) { // Custom non blocking delay
       if (stepsToPercentage(current_steps) != stepsToPercentage(prev_steps)) {
         publishCurrentPercentage();
       }
-      step(current_steps);
 
-      previousMillis = currentMillis;
+      previousMicros = currentMicros;
       prev_steps = current_steps;
 
 
@@ -142,7 +142,7 @@ void loop() {
     }
   } else if (MOVE_TO == -1) {
     // MOVE_TO = -1 means the motor has just stopped operation and should still hold to avoid blinds falling down
-    if (currentMillis - previousMillis >= HOLD_DELAY_MS) { // Custom non blocking delay
+    if (currentMicros - previousMicros >= HOLD_DELAY_MS * 1000) { // Custom non blocking delay
       MOVE_TO = -2;
       Serial.println("Hold finished");
     }
