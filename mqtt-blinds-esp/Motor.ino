@@ -1,5 +1,5 @@
 void step(int current_step) {
-  // source: http://eeshop.unl.edu/pdf/Stepper+Driver.pdf
+  // source http://www.geeetech.com/wiki/index.php?title=Stepper_Motor_5V_4-Phase_5-Wire_%26_ULN2003_Driver_Board_for_Arduino
   int i = current_step % 8;
   switch (i) {
     case 0:

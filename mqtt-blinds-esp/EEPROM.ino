@@ -8,7 +8,7 @@ int loadIntFromEeprom(int pos) {
 }
 
 void writeIntToEeprom(int input, int pos) {
- // + 1 for validity check
+  // + 1 for validity check
   byte low = lowByte(input + 1);
   byte high = highByte(input + 1);
   Serial.print("Writing to EEPROM: ");
@@ -18,23 +18,23 @@ void writeIntToEeprom(int input, int pos) {
   EEPROM.commit();
 }
 
-void loadSpeedFromEeprom(){
+void loadSpeedFromEeprom() {
   int speed = loadIntFromEeprom(2);
   if (speed <= 0 || speed > 100) {
     Serial.println("Wrong value in EEPROM, not using it");
-    default_step_delay = STEP_DELAY;
+    rpm = INIT_RPM;
   } else {
-    default_step_delay = speed;
+    rpm = speed;
     Serial.print("Read speed config from EEPROM: ");
     Serial.println(speed);
   }
 }
 
-void writeSpeedToEeprom(){
-  writeIntToEeprom(default_step_delay, 2);
+void writeSpeedToEeprom() {
+  writeIntToEeprom(rpm, 2);
 }
 
-void loadDefaultStepsFromEeprom(){
+void loadDefaultStepsFromEeprom() {
   int steps = loadIntFromEeprom(4);
   if (steps <= 0 || steps > 200000) {
     Serial.println("Wrong value in EEPROM, not using it");
@@ -45,7 +45,7 @@ void loadDefaultStepsFromEeprom(){
   }
 }
 
-void writeDefaultStepsToEeprom(){
+void writeDefaultStepsToEeprom() {
   writeIntToEeprom(STEPS, 4);
 }
 
