@@ -34,8 +34,8 @@ while True:
     total_count += 1
 
     # Publish an offline message if the current value is dated, i.e. the reading failed often
-    if total_count - last_successful > 22:
-        print("The last 22 readings were unsuccessful, now displaying as offline")
+    if total_count - last_successful > 30:
+        print("The last 30 readings were unsuccessful, now displaying as offline")
         client.publish(config.AVAILABILITY_TOPIC, "offline", 1, True)
 
     # Read the values
@@ -60,7 +60,7 @@ while True:
         last_humidity = humidity
 
     # Check that the difference between two measurements is not too high
-    if abs(last_humidity - humidity) >= 5 or abs(last_temperature - temperature) >= 0.5:
+    if abs(last_humidity - humidity) >= 5 or abs(last_temperature - temperature) >= 1:
         if skipped_count < 18:
             print("Difference to last value is too high, skipping for the " + str(skipped_count + 1) + ". time...")
             skipped_count += 1
