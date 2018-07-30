@@ -10,11 +10,7 @@ AVAILABILITY_TOPIC = "room/movement/available"
 MOVEMENT_TIMEOUT_SECONDS = 120.0
 ```
 
-2\) To let the script run as a service on debian:
- 1. Symlink the service file from this directory to `/etc/systemd/system/mqtt-pir.service`, e.g. `sudo ln -sf /home/pi/MQTT-Clients/mqtt-pir/mqtt.service /etc/systemd/system/mqtt-pir.service`
- 2. Reload the service configuration with `sudo systemctl deamon-reload`
- 3. Enable (= autostart) the service with `sudo systemctl enable mqtt-pir` 
- 4. Run it with `sudo systemctl start mqtt-pir`
+2\) Copy the service file from this directory to `/etc/systemd/system/mqtt-pir.service`, reload the service configuration with `sudo systemctl deamon-reload`, enable (= autostart) the service with `sudo systemctl enable mqtt-pir` and finally run it with `sudo systemctl start mqtt-pir`
 
 3\) Add this to your homeassistant configuration:
 
