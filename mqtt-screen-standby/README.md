@@ -8,7 +8,11 @@ MQTT_BROKER_HOST = "192.168.xxx.xxx"
 AVAILABILITY_TOPIC = "room/monitor/available"
 ```
 
-2\) Copy the service file from this directory to `/etc/systemd/system/mqtt-screen-standby.service`, reload the service configuration with `sudo systemctl deamon-reload`, enable (= autostart) the service with `sudo systemctl enable mqtt-screen-standby` and finally run it with `sudo systemctl start mqtt-screen-standby`
+2\) To let the script run as a service on debian:
+ 1. Symlink the service file from this directory to `/etc/systemd/system/mqtt-screen-standby.service`, e.g. `sudo ln -sf /home/pi/MQTT-Clients/mqtt-screen-standby/mqtt-screen-standby.service /etc/systemd/system/mqtt-screen-standby.service`
+ 2. Reload the service configuration with `sudo systemctl daemon-reload`
+ 3. Enable (= autostart) the service with `sudo systemctl enable mqtt-screen-standby` 
+ 4. Run it with `sudo systemctl start mqtt-screen-standby`
 
 3\) Add this to your homeassistant configuration:
 
