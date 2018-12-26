@@ -21,7 +21,7 @@ void writeIntToEeprom(int input, int pos) {
 void loadSpeedFromEeprom() {
   int speed = loadIntFromEeprom(2);
   if (speed <= 0 || speed > 100) {
-    Serial.println("Wrong value in EEPROM, not using it");
+    Serial.println("Wrong value for speed conf in EEPROM, using default");
     rpm = INIT_RPM;
   } else {
     rpm = speed;
@@ -37,7 +37,7 @@ void writeSpeedToEeprom() {
 void loadDefaultStepsFromEeprom() {
   int steps = loadIntFromEeprom(4);
   if (steps <= 0 || steps > 200000) {
-    Serial.println("Wrong value in EEPROM, not using it");
+    Serial.println("Wrong value for default steps in EEPROM, using default");
   } else {
     STEPS = steps;
     Serial.print("Read step config from EEPROM: ");
@@ -56,7 +56,7 @@ void writeCurrentStepsToEeprom() {
 void loadCurrentStepsFromEeprom() {
   int steps = loadIntFromEeprom(0);
   if (steps < 0 || steps > STEPS) {
-    Serial.println("Wrong value in EEPROM, not using it");
+    Serial.println("Wrong value for current steps in EEPROM, using 0!!");
   } else {
     current_steps = steps;
     Serial.print("Read current steps from EEPROM: ");

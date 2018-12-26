@@ -1,12 +1,12 @@
 void setup_mqtt() {
-  client.setServer(mqtt_server, 1883);
+  client.setServer(mqtt_server, mqtt_port);
   client.setCallback(callback);
   // Loop until we're connected
   while (!client.connected()) {
     Serial.println("Attempting MQTT connection...");
     // Attempt to connect
-    if (client.connect(hostname, availability_topic, 1, true, "offline")) {
-      Serial.println("connected");
+    if (client.connect(mqtt_clientname, availability_topic, 1, true, "offline")) {
+      Serial.println("connected to MQTT server");
       client.publish(availability_topic, "online", true);
       client.subscribe(cmnd_topic);
       client.subscribe(pos_topic);
@@ -14,9 +14,9 @@ void setup_mqtt() {
       client.subscribe(speed_config_topic);
       client.subscribe(steps_config_topic);
     } else {
-      Serial.print("failed, rc=");
+      Serial.print("failed with code ");
       Serial.print(client.state());
-      Serial.println(" try again in 5 seconds");
+      Serial.println(", trying again in 5 seconds");
       // Wait 5 seconds before retrying
       delay(5000);
     }

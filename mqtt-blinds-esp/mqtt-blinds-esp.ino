@@ -36,12 +36,16 @@ void setup() {
 }
 
 void callback(char* tpc, byte* payload_bytes, unsigned int length) {
+  if (length == 0) {
+    Serial.println("Received MQTT command with empty payload, aborting...");
+    return;
+  }
   char payload[length];
   for (int i = 0; i < length; i++) {
     payload[i] = (char)payload_bytes[i];
   }
   String cmnd((char*)payload);
-  String topic((char*)tpc);
+  String topic(tpc);
   Serial.print("Message arrived [");
   Serial.print(topic);
   Serial.print("] ");

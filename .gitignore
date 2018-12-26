@@ -82,5 +82,6 @@
 
 # Custom
 
-**/Constants.*
+**/Constants*
 **/config.*
+**/*.swp

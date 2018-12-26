@@ -5,10 +5,11 @@ Create a file called `Constants.h` with the following contents:
 ```cpp
 #define wifi_ssid "********"
 #define wifi_password "******"
-#define hostname "ESP_BLINDS"
 #define ota_password "XXXXXXX"
 
 #define mqtt_server "192.168.xxx.xxx"
+#define mqtt_port 1883
+#define mqtt_clientname "ESP_BLINDS"
 
 // Where to receive commands
 #define cmnd_topic "room/blinds/cmnd"
@@ -34,7 +35,7 @@ const int motorPin4 = 0;
 // Optional, Delay between each motor step, can be overriden by mqtt config
 const int INIT_RPM = 13;
 // How long to leave the motor on after it stopped (to avoid the blinds falling down because of sudden stop)
-const int HOLD_DELAY_MS = 1000;
+const int HOLD_DELAY_MS = 500;
 
 ```
 

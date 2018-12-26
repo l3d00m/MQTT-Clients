@@ -2,7 +2,7 @@ void setup_wifi() {
   // We start by connecting to a WiFi network
   Serial.println();
   Serial.print("Connecting to ");
-  Serial.println(wifi_ssid);
+  Serial.print(wifi_ssid);
 
   WiFi.begin(wifi_ssid, wifi_password);
 
@@ -10,9 +10,7 @@ void setup_wifi() {
     delay(500);
     Serial.print(".");
   }
-
   Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.println("IP address: ");
+  Serial.print("WiFi connected with ip ");
   Serial.println(WiFi.localIP());
 }
