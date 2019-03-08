@@ -5,7 +5,7 @@ void setup_mqtt() {
   while (!client.connected()) {
     Serial.println("Attempting MQTT connection...");
     // Attempt to connect
-    if (client.connect(mqtt_clientname, availability_topic, 1, true, "offline")) {
+    if (client.connect(clientname, availability_topic, 1, true, "offline")) {
       Serial.println("connected to MQTT server");
       client.publish(availability_topic, "online", true);
       client.subscribe(cmnd_topic);
@@ -13,6 +13,7 @@ void setup_mqtt() {
       client.subscribe(next_speed_topic);
       client.subscribe(speed_config_topic);
       client.subscribe(steps_config_topic);
+      client.subscribe(speed_down_config_topic);
     } else {
       Serial.print("failed with code ");
       Serial.print(client.state());

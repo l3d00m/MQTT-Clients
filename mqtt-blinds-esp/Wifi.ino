@@ -4,10 +4,11 @@ void setup_wifi() {
   Serial.print("Connecting to ");
   Serial.print(wifi_ssid);
 
+  WiFi.hostname(clientname);
   WiFi.begin(wifi_ssid, wifi_password);
 
   while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
+    delay(100);
     Serial.print(".");
   }
   Serial.println("");
