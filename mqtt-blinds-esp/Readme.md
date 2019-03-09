@@ -21,9 +21,6 @@ Create a file called `Constants.h` with the following contents:
 #define motorPin2 5
 #define motorPin3 4
 #define motorPin4 0
-
-// How long to leave the motor on after it stopped (to avoid the blinds falling down because of sudden stop)
-#define HOLD_DELAY_MS 200
 ```
 
 
