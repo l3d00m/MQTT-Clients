@@ -74,14 +74,13 @@ while True:
     #  Set state to online in case it was offline
     client.publish(config.AVAILABILITY_TOPIC, "online", 1, True)
     #  Publish values on difference (to avoid a polluted database)
-    if abs(last_humidity - humidity) >= 0.2:
-        client.publish(config.HUMIDITY_TOPIC, humidity, retain=True)
-        last_humidity = humidity
-        print('Published new humidity')
-    if last_temperature != temperature:
-        client.publish(config.TEMPERATURE_TOPIC, temperature, retain=True)
-        last_temperature = temperature
-        print('Published new temperature')
+    client.publish(config.HUMIDITY_TOPIC, humidity, retain=True)
+    last_humidity = humidity
+    print('Published new humidity')
+
+    client.publish(config.TEMPERATURE_TOPIC, temperature, retain=True)
+    last_temperature = temperature
+    print('Published new temperature')
 
     # (re)set loop values
     last_successful = total_count
