@@ -23,9 +23,6 @@ client.connect(config.MQTT_BROKER_HOSTNAME,
                10)
 client.loop_start()
 
-last_humidity = False
-last_temperature = False
-skipped_count = 0
 total_count = 0
 last_successful = 0
 
@@ -54,32 +51,15 @@ while True:
     if (humidity < 0) or (humidity > 100) or (temperature < -20) or (temperature > 50):
         print("Value is out of bounds, skipping this reading...")
         continue
-    # If this is the first run, set last values manually
-    if last_temperature is False or last_humidity is False:
-        last_temperature = temperature
-        last_humidity = humidity
-
-    # Check that the difference between two measurements is not too high
-    if abs(last_humidity - humidity) >= 5 or abs(last_temperature - temperature) >= 0.5:
-        if skipped_count < 15:
-            print("Difference to last value is too high, skipping for the " + str(skipped_count + 1) + ". time...")
-            skipped_count += 1
-            continue
-        else:
-            # If somehow the script hasn't run for some time or started with a wrong value, this is a fail safe
-            # It should very rarely land here
-            print("We already skipped " + str(skipped_count + 1) + " values, now assuming that this is the right value")
 
     # We only get to these lines if the reading was successful
     #  Set state to online in case it was offline
     client.publish(config.AVAILABILITY_TOPIC, "online", 1, True)
-    #  Publish values on difference (to avoid a polluted database)
+    
     client.publish(config.HUMIDITY_TOPIC, humidity, retain=True)
-    last_humidity = humidity
     print('Published new humidity')
 
     client.publish(config.TEMPERATURE_TOPIC, temperature, retain=True)
-    last_temperature = temperature
     print('Published new temperature')
 
     # (re)set loop values
