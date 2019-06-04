@@ -42,3 +42,21 @@ sensor:
     payload_not_available: "offline"
     device_class: humidity
 ```
+
+5\)
+Add an optional filter sensor in homeassistant to correct invalid readings, smoothen the result for a visualization or for storing less values. My setup currently is:
+````yaml
+  - platform: filter
+    name: "Filtered temperature"
+    entity_id: sensor.temperature
+    filters:
+      - filter: range # filter everything below 5 degree because it's an inside sensor
+        lower_bound: 5
+      - filter: outlier # add an outlier filter which is useful for incorrect reading which happends when used without pullup resisitor
+        window_size: 0.6
+      - filter: time_simple_moving_average # add a moving average filter to smoothen the result and in the next step
+        window_size: 00:10
+      - filter: time_throttle # only one new value every x minutes for keeping the db small. Works best with the moving average from above
+        window_size: 00:08
+
+````
