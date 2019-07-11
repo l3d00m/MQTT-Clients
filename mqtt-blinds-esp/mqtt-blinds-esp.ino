@@ -9,6 +9,9 @@
 
 #define steps_per_rotation 4076 // 64 steps per revolution * 63,8... gear reduction ratio: https://42bots.com/tutorials/28byj-48-stepper-motor-with-uln2003-driver-and-arduino-uno/
 
+#define fenster_pin 13
+#define fenster_mqtt_topic "thomas/window/contact"
+
 // Max Steps (i.e. how far to move)
 int MAX_STEPS;
 
@@ -20,6 +23,7 @@ int prev_steps = -1;
 unsigned long previousMicros = 0;
 int up_rpm; // Delay between each motor step while moving up
 int down_rpm; // Delay between motor steps while moving down
+int previous_fenster = -1;
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -35,6 +39,7 @@ void setup() {
   loadCurrentStepsFromEeprom();
   loadUpSpeedFromEeprom();
   loadDownSpeedFromEeprom(); // load down speed after normal speed to calculate it if not set
+  pinMode(fenster_pin, INPUT);
 }
 
 void finish_moving() {
@@ -64,6 +69,18 @@ void loop() {
     setup_mqtt();
     publishCurrentPercentage();
   }
+  int fenster = 1;
+  if (digitalRead(fenster_pin) == LOW) {
+    fenster = 0; // closed wenn low
+  }
+  if (fenster != previous_fenster) {
+    previous_fenster = fenster;
+    char convert[1];
+    itoa(fenster, convert, 10);
+    char* payload = convert;
+    client.publish(fenster_mqtt_topic, payload, true);
+  }
+
   client.loop();
   unsigned long currentMicros = micros();
   if (MOVE_TO >= 0) {
