@@ -16,7 +16,7 @@ int MAX_STEPS;
 
 /* Global values used in the program */
 int temporary_rpm = -1;
-int MOVE_TO = -2;
+int MOVE_TO = -2; // Variable which contains which step to move to, is 0 when moving op, >> 0 when moving down, -1 when holding shortly after moving and -2 when doing nothing
 int current_steps = 0;
 int prev_steps = -1;
 unsigned long previousMicros = 0;
@@ -34,10 +34,10 @@ void setup() {
   setup_motor();
   turn_off_motor();
   initOTA();
-  loadMaxStepsFromEeprom(); // load max steps before current steps for validity checks in current steps
+  loadMaxStepsFromEeprom(); // load max steps before loadCurrentStepsFromEeprom for validity checks in loadCurrentStepsFromEeprom
   loadCurrentStepsFromEeprom();
   loadUpSpeedFromEeprom();
-  loadDownSpeedFromEeprom(); // load down speed after normal speed to calculate it if not set
+  loadDownSpeedFromEeprom();
   pinMode(fenster_pin, INPUT);
 }
 
@@ -58,13 +58,13 @@ int getRPM(bool moving_down) {
 }
 
 void loop() {
-  if (WiFi.status() != WL_CONNECTED) {
-    turn_off_motor();
-    setup_wifi();
+  if (WiFi.status() != WL_CONNECTED) { // check for wifi status before connecting to mqtt
+    turn_off_motor(); //turn off all out pins because otherwise the stepper motor gets hot
+    setup_wifi(); // reconnect
   }
   ArduinoOTA.handle();
   if (!client.connected()) {
-    turn_off_motor();
+    turn_off_motor(); //turn off all out pins because otherwise the stepper motor gets hot
     setup_mqtt();
     publishCurrentPercentage();
   }
@@ -95,15 +95,11 @@ void loop() {
         Serial.println("Finished moving up");
       }
       finish_moving();
-    } else if (currentMicros - previousMicros >= step_delay) { // Custom non blocking delay
+    } else if (currentMicros - previousMicros >= step_delay) { // Custom non blocking delay, is rollover-save thanks to unsigned long
       step(current_steps);
-      
-      if (stepsToPercentage(current_steps) != stepsToPercentage(prev_steps)) { // publish and save percentage on change
+
+      if (stepsToPercentage(current_steps) != stepsToPercentage(prev_steps)) { // publish percentage on change
         publishCurrentPercentage();
-        if (stepsToPercentage(current_steps) % 10 == 0) {
-          // Write steps to eeprom every 10 percent to avoid complete position loss on power off, but not every percentage to save eeprom lifetime
-          writeCurrentStepsToEeprom();
-        }
       }
 
       previousMicros = currentMicros;
@@ -117,7 +113,7 @@ void loop() {
     }
   } else if (MOVE_TO == -1) {
     // MOVE_TO = -1 means the motor has just stopped operation and should still hold to avoid blinds falling down
-    if (currentMicros - previousMicros >= 200 * 1000) { // Custom non blocking delay
+    if (currentMicros - previousMicros >= 200 * 1000) { // Custom non blocking delay, is rollover-save thanks to unsigned long
       MOVE_TO = -2;
       Serial.println("Hold finished");
     }

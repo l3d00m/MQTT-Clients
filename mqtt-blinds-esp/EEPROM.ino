@@ -8,7 +8,7 @@
 // This allows to store bigger values in EEPROM with just 16 bytes
 #define eeprom_steps_resolution 10
 
-#define default_up_rpm 10 // default value for up speed
+#define default_up_rpm 15 // default value for up speed
 #define default_down_rpm default_up_rpm + 4 // the default down rpm (down speed should be faster by default)
 #define default_max_steps 40000
 
