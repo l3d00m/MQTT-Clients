@@ -14,6 +14,8 @@
 #define speed_down_config_topic   topic_prefix "config/speed_down"
 // To configure the total steps (i.e. how far the blinds will go)
 #define steps_config_topic        topic_prefix "config/steps"
+// Where the window sensor reports where it's closed or not
+#define window_state_topic "thomas/window/contact"
 
 void setup_mqtt() {
   client.setServer(mqtt_server, mqtt_port);
@@ -123,6 +125,13 @@ void publishCurrentPercentage() {
   Serial.print("Current percentage, will be published: ");
   Serial.println(convert);
   client.publish(stat_topic, convert, true);
+}
+
+void publishWindowState(int window_state){
+    char convert[1];
+    itoa(window_state, convert, 10);
+    char* payload = convert;
+    client.publish(window_state_topic, payload, true);
 }
 
 byte stepsToPercentage(int steps) {

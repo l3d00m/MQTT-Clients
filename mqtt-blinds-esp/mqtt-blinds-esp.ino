@@ -10,7 +10,6 @@
 #define steps_per_rotation 4076 // 64 steps per revolution * 63,8... gear reduction ratio: https://42bots.com/tutorials/28byj-48-stepper-motor-with-uln2003-driver-and-arduino-uno/
 
 #define fenster_pin 13
-#define fenster_mqtt_topic "thomas/window/contact"
 
 // Max Steps (i.e. how far to move)
 int MAX_STEPS;
@@ -75,10 +74,7 @@ void loop() {
   }
   if (fenster != previous_fenster) {
     previous_fenster = fenster;
-    char convert[1];
-    itoa(fenster, convert, 10);
-    char* payload = convert;
-    client.publish(fenster_mqtt_topic, payload, true);
+    publishWindowState(fenster);
   }
 
   client.loop();
