@@ -78,6 +78,16 @@ void callback(char* tpc, byte* payload_bytes, unsigned int length) {
     } else if (cmnd.startsWith("STOP")) {
       Serial.println("Stopping");
       finish_moving();
+    } else if (cmnd.startsWith("TOGGLE")) {
+      if (current_steps == 0 || (MOVE_TO >= 0 && current_steps > MOVE_TO)) {
+        // If blinds are currently open or in the process of opening, close them
+        MOVE_TO = MAX_STEPS;
+        Serial.println("Toggling, will close now");
+      } else {
+        // otherwise simply open them
+        MOVE_TO = 0;
+        Serial.println("Toggling, will open now");
+      }
     }
   } else if (topic.equals(next_speed_topic)) {
     Serial.print("Received temporary speed only for next cmnd: ");
