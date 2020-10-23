@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf8
 
+import sys
 import time
 from threading import Timer
 
@@ -31,8 +32,19 @@ class ResetTimer:
 
 
 def on_connect(client, userdata, flags, rc):
-    print("Connected with result code ", str(rc))
+    if rc > 0:
+        sys.exit("Connection to MQTT broker failed with code " + str(rc))
     client.publish(config.AVAILABILITY_TOPIC, "online", 1, True)
+    print("Succesfully connected to MQTT broker")
+    initial_publish()
+
+
+def initial_publish():
+    """Publish initial state and start timer once (in case the initial movement is True)"""
+    initial_state = GPIO.input(config.PIR_GPIO_PIN)
+    print("Publishing initial movement of " + str(initial_state))
+    client.publish(config.MOVEMENT_TOPIC, initial_state, 1, retain=True)
+    timer.start()
 
 
 def timeout():
@@ -51,6 +63,9 @@ def on_pir_rised(channel):
     timer.start()
 
 
+# Setup timer
+timer = ResetTimer(config.MOVEMENT_TIMEOUT_SECONDS, timeout)
+
 # Setup MQTT connection
 client = mqtt.Client()
 client.on_connect = on_connect
@@ -63,11 +78,6 @@ GPIO.setmode(GPIO.BOARD)
 GPIO.setup(config.PIR_GPIO_PIN, GPIO.IN)
 GPIO.add_event_detect(config.PIR_GPIO_PIN, GPIO.RISING, callback=on_pir_rised)
 
-# Publish initial state and start timer initially
-initial_state = GPIO.input(config.PIR_GPIO_PIN)
-print("Initial movement " + str(initial_state))
-client.publish(config.MOVEMENT_TOPIC, initial_state, 1, retain=True)
-timer = ResetTimer(config.MOVEMENT_TIMEOUT_SECONDS, timeout)
-
 while True:
-    time.sleep(2)
+    # Just sleep loop because everything will happen asynchronous
+    time.sleep(0.1)
