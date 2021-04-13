@@ -40,12 +40,15 @@ def get_state():
 def publish_hass_discovery():
     for pm_type in ['pm1', 'pm2_5', 'pm10']:
         config_dict = {}
-        config_dict['name'] = config.DEVICE_NAME + pm_type
+        config_dict['name'] = config.DEVICE_NAME + " " + pm_type
         config_dict['state_topic'] = config.STATE_TOPIC
+        config_dict['availability_topic'] = config.AVAILABILITY_TOPIC
+        config_dict['payload_available'] = "online"
+        config_dict['payload_not_available'] = "offline"
         config_dict['unit_of_measurement'] = "ug/m3"
         config_dict['value_template'] = "{{value_json." + pm_type + "}}"
-        mqtt_name = re.sub(r'\W+', '', config_dict['name'], flags=re.ASCII)
-        client.publish(f"homeassistant/sensor/pms5003/{mqtt_name}/config", json.dumps(config_dict), retain=True)
+        mqtt_name = "pm5003_" + re.sub(r'\W+', '', config_dict['name'], flags=re.ASCII)
+        client.publish(f"homeassistant/sensor/{mqtt_name}/config", json.dumps(config_dict), retain=True)
 
 
 client = mqtt.Client()
@@ -64,8 +67,8 @@ while True:
     total_count += 1
 
     # Publish an offline message if the current value is dated, i.e. the reading failed often
-    if total_count - last_successful > 20:
-        print("The last 20 readings were unsuccessful, now displaying as offline")
+    if total_count - last_successful > 5:
+        print("The last 5 readings were unsuccessful, now displaying as offline")
         client.publish(config.AVAILABILITY_TOPIC, "offline", 1, True)
 
     # Read the values
