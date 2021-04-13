@@ -40,16 +40,19 @@ def get_state():
 def publish_hass_discovery():
     """Homeassistant Auto discovery for the three sensors"""
     for pm_type, name in {'pm1': "PM 1", 'pm2_5': "PM 2.5", 'pm10': "PM 10"}.items():
+        unique_name = "pms5003_" + re.sub(r'\W+', '', config.DEVICE_NAME + "_" + pm_type, flags=re.ASCII)
+
         config_dict = {}
         config_dict['name'] = config.DEVICE_NAME + " " + name
+        config_dict['unique_id'] = unique_name
         config_dict['state_topic'] = config.STATE_TOPIC
         config_dict['availability_topic'] = config.AVAILABILITY_TOPIC
         config_dict['payload_available'] = "online"
         config_dict['payload_not_available'] = "offline"
         config_dict['unit_of_measurement'] = "ug/m3"
         config_dict['value_template'] = "{{value_json." + pm_type + "}}"
-        mqtt_name = "pm5003_" + re.sub(r'\W+', '', config_dict['name'], flags=re.ASCII)
-        client.publish(f"homeassistant/sensor/{mqtt_name}/config", json.dumps(config_dict), retain=True)
+
+        client.publish(f"homeassistant/sensor/{unique_name}/config", json.dumps(config_dict), retain=True)
 
 
 client = mqtt.Client()
