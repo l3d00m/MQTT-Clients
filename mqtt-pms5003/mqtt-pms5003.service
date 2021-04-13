@@ -1,0 +1,15 @@
+[Unit]
+Description=pms5003 to MQTT service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Environment=PYTHONUNBUFFERED=1
+Type=simple
+ExecStart=/home/pi/MQTT-Clients/mqtt-pms5003/mqtt-pms5003.py
+Restart=always
+RestartSec=2
+RuntimeMaxSec=43200
+
+[Install]
+WantedBy=multi-user.target
