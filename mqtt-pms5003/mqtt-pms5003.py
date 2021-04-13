@@ -38,9 +38,10 @@ def get_state():
 
 
 def publish_hass_discovery():
-    for pm_type in ['pm1', 'pm2_5', 'pm10']:
+    """Homeassistant Auto discovery for the three sensors"""
+    for pm_type, name in {'pm1': "PM 1.0", 'pm2_5': "PM 2.5", 'pm10': "PM 10"}.items():
         config_dict = {}
-        config_dict['name'] = config.DEVICE_NAME + " " + pm_type
+        config_dict['name'] = config.DEVICE_NAME + " " + name
         config_dict['state_topic'] = config.STATE_TOPIC
         config_dict['availability_topic'] = config.AVAILABILITY_TOPIC
         config_dict['payload_available'] = "online"
