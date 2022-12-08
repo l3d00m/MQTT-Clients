@@ -6,9 +6,12 @@ HUMIDITY_TOPIC = "room/climate/humidity"
 AVAILABILITY_TOPIC = "room/climate/status"
 MQTT_BROKER_HOSTNAME = "192.168.0.xxx"
 MQTT_BROKER_PORT = 1883
-DHT_PIN = 4
-SECONDS_TO_SLEEP = 4
+SECONDS_TO_SLEEP = 2
+HASS_NAME_TEMPERATURE = "Room Temperature"
+HASS_NAME_HUMIDITY = "Room Humidity"
 ```
+
+DHT PIN is always GPIO4.
 
 2\) Install the required dependencies:
  1. Install apt dependencies: `sudo apt install python3 python3-pip libgpiod2`
@@ -20,27 +23,6 @@ SECONDS_TO_SLEEP = 4
  3. Enable (= autostart) the service with `sudo systemctl enable mqtt-dht` 
  4. Run it with `sudo systemctl start mqtt-dht`
 
-4\) Add this to your homeassistant configuration:
- 
-```yaml
-sensor:
-  - platform: mqtt
-    name: "Temperature"
-    state_topic: "room/climate/temperature"
-    unit_of_measurement: '°C'
-    availability_topic: "room/climate/status"
-    payload_available: "online"
-    payload_not_available: "offline"
-    device_class: temperature
-  - platform: mqtt
-    name: "Humidity"
-    state_topic: "room/climate/humidity"
-    unit_of_measurement: '%'
-    availability_topic: "room/climate/available"
-    payload_available: "online"
-    payload_not_available: "offline"
-    device_class: humidity
-```
 
 5\)
 Add an optional filter sensor in homeassistant to correct invalid readings, smoothen the result for a visualization or for storing less values. My setup currently is:

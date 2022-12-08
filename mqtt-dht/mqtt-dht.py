@@ -3,9 +3,11 @@
 # Modified from https://github.com/corbanmailloux/esp-mqtt-dht
 import paho.mqtt.client as mqtt
 import time
-import adafruit_dht 
+import adafruit_dht
 import board
 import config
+import json
+import re
 
 
 # The callback for when the client receives a CONNACK response from the server.
@@ -26,6 +28,26 @@ client.loop_start()
 
 dhtDevice = adafruit_dht.DHT22(board.D4)
 
+discovery_temp = {}
+discovery_temp['name'] = config.HASS_NAME_TEMPERATURE
+discovery_temp['state_topic'] = config.TEMPERATURE_TOPIC
+discovery_temp['device_class'] = 'temperature'
+discovery_temp['avty_t'] = config.AVAILABILITY_TOPIC
+discovery_temp_json = json.dumps(discovery_temp)
+unique_temp_id = ''.join([i for i in config.TEMPERATURE_TOPIC if i.isalpha()])
+discovery_temp_topic = "homeassistant/sensor/" + unique_temp_id  + "/config"
+
+discovery_hum = {}
+discovery_hum['name'] = config.HASS_NAME_HUMIDITY
+discovery_hum['state_topic'] = config.HUMIDITY_TOPIC
+discovery_hum['device_class'] = 'temperature'
+discovery_hum['avty_t'] = config.AVAILABILITY_TOPIC
+discovery_hum_json = json.dumps(discovery_hum)
+unique_hum_id = ''.join([i for i in config.HUMIDITY_TOPIC if i.isalpha()])
+discovery_hum_topic = "homeassistant/sensor/" + unique_temp_id  + "/config"
+
+
+
 total_count = 0
 last_successful = 0
 
@@ -40,7 +62,7 @@ while True:
 
     # Read the values
     try:
-        temperature = dhtDevice.temperature 
+        temperature = dhtDevice.temperature
         humidity = dhtDevice.humidity
     except RuntimeError as error:
         print(error.args[0])
@@ -63,7 +85,9 @@ while True:
     # We only get to these lines if the reading was successful
     #  Set state to online in case it was offline
     client.publish(config.AVAILABILITY_TOPIC, "online", 1, True)
-    
+    client.publish(discovery_temp_topic, discovery_temp_json, retain=True)
+    client.publish(discovery_hum_topic, discovery_hum_json, retain=True)
+
     client.publish(config.HUMIDITY_TOPIC, humidity, retain=True)
     print('Published new humidity')
 
