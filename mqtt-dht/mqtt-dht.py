@@ -3,7 +3,8 @@
 # Modified from https://github.com/corbanmailloux/esp-mqtt-dht
 import paho.mqtt.client as mqtt
 import time
-import Adafruit_DHT
+import adafruit_dht 
+import board
 import config
 
 
@@ -23,6 +24,8 @@ client.connect(config.MQTT_BROKER_HOSTNAME,
                10)
 client.loop_start()
 
+dhtDevice = adafruit_dht.DHT22(board.D4)
+
 total_count = 0
 last_successful = 0
 
@@ -36,7 +39,12 @@ while True:
         client.publish(config.AVAILABILITY_TOPIC, "offline", 1, True)
 
     # Read the values
-    humidity, temperature = Adafruit_DHT.read_retry(22, config.DHT_PIN)
+    try:
+        temperature = dhtDevice.temperature 
+        humidity = dhtDevice.humidity
+    except RuntimeError as error:
+        print(error.args[0])
+        continue
 
     # Verify that the reading worked
     if humidity is None or temperature is None:
