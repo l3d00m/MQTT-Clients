@@ -40,11 +40,11 @@ discovery_temp_topic = "homeassistant/sensor/" + unique_temp_id  + "/config"
 discovery_hum = {}
 discovery_hum['name'] = config.HASS_NAME_HUMIDITY
 discovery_hum['state_topic'] = config.HUMIDITY_TOPIC
-discovery_hum['device_class'] = 'temperature'
+discovery_hum['device_class'] = 'humidity'
 discovery_hum['avty_t'] = config.AVAILABILITY_TOPIC
 discovery_hum_json = json.dumps(discovery_hum)
 unique_hum_id = ''.join([i for i in config.HUMIDITY_TOPIC if i.isalpha()])
-discovery_hum_topic = "homeassistant/sensor/" + unique_temp_id  + "/config"
+discovery_hum_topic = "homeassistant/sensor/" + unique_hum_id  + "/config"
 
 
 
