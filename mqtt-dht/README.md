@@ -3,7 +3,7 @@
 ```python
 TEMPERATURE_TOPIC = "room/climate/temperature"
 HUMIDITY_TOPIC = "room/climate/humidity"
-AVAILABILITY_TOPIC = "room/climate/available"
+AVAILABILITY_TOPIC = "room/climate/status"
 MQTT_BROKER_HOSTNAME = "192.168.0.xxx"
 MQTT_BROKER_PORT = 1883
 DHT_PIN = 4
@@ -11,8 +11,7 @@ SECONDS_TO_SLEEP = 4
 ```
 
 2\) Install the required dependencies:
- 1. Install python3 and pip if not already installed: `sudo apt install python3 python3-pip`
- 1. Install the library for the DHT sensor by executing this in your home folder `git clone https://github.com/adafruit/Adafruit_Python_DHT.git && cd Adafruit_Python_DHT && sudo python3 setup.py install`
+ 1. Install apt dependencies: `sudo apt install python3 python3-pip libgpiod2`
  1. Execute the following command in this folder to install the python dependencies: `sudo pip3 install -r requirements.txt`
 
 3\) Make the script run as a service on debian:
