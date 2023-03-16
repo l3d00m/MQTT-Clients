@@ -7,7 +7,6 @@ import adafruit_dht
 import board
 import config
 import json
-import re
 
 
 # The callback for when the client receives a CONNACK response from the server.
@@ -21,6 +20,8 @@ def on_connect(client, userdata, flags, rc):
 client = mqtt.Client()
 client.on_connect = on_connect
 client.will_set(config.AVAILABILITY_TOPIC, "offline", 1, True)
+if (config.MQTT_USERNAME != ''):
+    client.username_pw_set(config.MQTT_USERNAME, config.MQTT_PASSWORD)
 client.connect(config.MQTT_BROKER_HOSTNAME,
                config.MQTT_BROKER_PORT,
                10)
